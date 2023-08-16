@@ -28,7 +28,42 @@ void main() {
       lastSeen: DateTime.now(),
     );
     final userWithId = await sut.connect(user);
-    print(userWithId.id);
     expect(userWithId.id, isNotEmpty);
   });
+
+  test('get online users', () async {
+    final user = User(
+      username: 'test',
+      photoUrl: 'url',
+      active: true,
+      lastSeen: DateTime.now(),
+    );
+    //arrange
+    await sut.connect(user);
+    //act
+    final users = await sut.online();
+    //assert
+    expect(users.length, 1);
+  });
+
+  // test('disconnects a user', () async {
+  //   final user = User(
+  //     username: 'test',
+  //     photoUrl: 'url',
+  //     active: true,
+  //     lastSeen: DateTime.now(),
+  //   );
+
+  //   // arrange
+  //   final connectedUser = await sut.connect(user);
+
+  //   // act
+  //   await sut.disconnect(connectedUser);
+
+  //   // try to fetch the disconnected user
+  //   final users = await sut.online();
+
+  //   // assert
+  //   expect(users.length, 0);
+  // });
 }

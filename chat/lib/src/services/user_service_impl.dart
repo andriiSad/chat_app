@@ -23,21 +23,21 @@ class UserService implements IUserService {
 
     final List<dynamic> changes = result['changes'] as List<dynamic>;
 
-    final Map<String, dynamic> newUserData =
-        changes.first['new_val'] as Map<String, dynamic>;
+    final Map<String, dynamic> newUserData = changes.first['new_val'] as Map<String, dynamic>;
 
     return User.fromJson(newUserData);
   }
 
   @override
-  Future<void> disconnect(User user) {
-    // TODO: implement disconnect
-    throw UnimplementedError();
+  Future<void> disconnect(User user) async {
+    await _r.table('users').update({'id': user.id, 'active': false, 'last_seen': DateTime.now()}).run(_connection);
+    _connection.close();
   }
 
   @override
-  Future<List<User>> online() {
-    // TODO: implement online
-    throw UnimplementedError();
+  Future<List<User>> online() async {
+    final Cursor users = await _r.table('users').filter({'active': true}).run(_connection) as Cursor;
+    final userList = await users.toList();
+    return userList.map((e) => User.fromJson(e as Map<String, dynamic>)).toList();
   }
 }
