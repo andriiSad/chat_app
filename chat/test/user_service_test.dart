@@ -18,6 +18,7 @@ void main() {
 
   tearDown(() async {
     await cleanDb(r, connection);
+    connection.close();
   });
 
   test('creates a new user document in database', () async {
@@ -46,24 +47,24 @@ void main() {
     expect(users.length, 1);
   });
 
-  // test('disconnects a user', () async {
-  //   final user = User(
-  //     username: 'test',
-  //     photoUrl: 'url',
-  //     active: true,
-  //     lastSeen: DateTime.now(),
-  //   );
+  test('disconnects a user', () async {
+    final user = User(
+      username: 'test',
+      photoUrl: 'url',
+      active: true,
+      lastSeen: DateTime.now(),
+    );
 
-  //   // arrange
-  //   final connectedUser = await sut.connect(user);
+    // arrange
+    final connectedUser = await sut.connect(user);
 
-  //   // act
-  //   await sut.disconnect(connectedUser);
+    // act
+    await sut.disconnect(connectedUser);
 
-  //   // try to fetch the disconnected user
-  //   final users = await sut.online();
+    // try to fetch the disconnected user
+    final users = await sut.online();
 
-  //   // assert
-  //   expect(users.length, 0);
-  // });
+    // assert
+    expect(users.length, 0);
+  });
 }
