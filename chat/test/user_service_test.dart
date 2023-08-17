@@ -1,4 +1,5 @@
 import 'package:chat/src/models/user.dart';
+import 'package:chat/src/services/user/user_service_contract.dart';
 import 'package:chat/src/services/user/user_service_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rethink_db_ns/rethink_db_ns.dart';
@@ -8,12 +9,12 @@ import 'helpers.dart';
 void main() {
   final RethinkDb r = RethinkDb();
   late Connection connection;
-  late UserService sut;
+  late IUserService userService;
 
   setUp(() async {
     connection = await r.connect(host: '127.0.0.1');
     await createDb(r, connection);
-    sut = UserService(r, connection);
+    userService = UserService(r, connection);
   });
 
   tearDown(() async {
@@ -28,7 +29,7 @@ void main() {
       active: true,
       lastSeen: DateTime.now(),
     );
-    final userWithId = await sut.connect(user);
+    final userWithId = await userService.connect(user);
     expect(userWithId.id, isNotEmpty);
   });
 
@@ -40,9 +41,9 @@ void main() {
       lastSeen: DateTime.now(),
     );
     //arrange
-    await sut.connect(user);
+    await userService.connect(user);
     //act
-    final users = await sut.online();
+    final users = await userService.online();
     //assert
     expect(users.length, 1);
   });
@@ -56,13 +57,13 @@ void main() {
     );
 
     // arrange
-    final connectedUser = await sut.connect(user);
+    final connectedUser = await userService.connect(user);
 
     // act
-    await sut.disconnect(connectedUser);
+    await userService.disconnect(connectedUser);
 
     // try to fetch the disconnected user
-    final users = await sut.online();
+    final users = await userService.online();
 
     // assert
     expect(users.length, 0);

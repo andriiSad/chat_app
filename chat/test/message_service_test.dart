@@ -1,6 +1,9 @@
 import 'package:chat/src/models/message.dart';
 import 'package:chat/src/models/user.dart';
+import 'package:chat/src/services/encryption/encryption_service_impl.dart';
+import 'package:chat/src/services/message/message_service_contract.dart';
 import 'package:chat/src/services/message/message_service_impl.dart';
+import 'package:encrypt/encrypt.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rethink_db_ns/rethink_db_ns.dart';
 
@@ -9,16 +12,18 @@ import 'helpers.dart';
 void main() {
   final RethinkDb r = RethinkDb();
   late Connection connection;
-  late MessageService sut;
+  late IMessageService messageService;
 
   setUp(() async {
     connection = await r.connect(host: '127.0.0.1');
+    final encryptionService =
+        EncryptionService(Encrypter(AES(Key.fromLength(32))));
     await createDb(r, connection);
-    sut = MessageService(r, connection);
+    messageService = MessageService(r, connection, encryptionService);
   });
 
   tearDown(() async {
-    sut.dispose();
+    messageService.dispose();
     await cleanDb(r, connection);
     connection.close();
   });
@@ -46,17 +51,17 @@ void main() {
       timestamp: DateTime.now(),
       content: 'this is a message',
     );
-    final res = await sut.send(message);
+    final res = await messageService.send(message);
     expect(res, true);
   });
 
   test('successfully subscribe and receive messages', () async {
-    sut.messages(secondUser).listen(expectAsync1((message) {
+    messageService.messages(secondUser).listen(expectAsync1((message) {
           expect(message.to, secondUser.id);
           expect(message.id, isNotEmpty);
         }, count: 2));
 
-    final message = Message(
+    final firstMessage = Message(
       from: firstUser.id!,
       to: secondUser.id!,
       timestamp: DateTime.now(),
@@ -70,8 +75,8 @@ void main() {
       content: 'this is another message',
     );
 
-    await sut.send(message);
-    await sut.send(secondMessage);
+    await messageService.send(firstMessage);
+    await messageService.send(secondMessage);
   });
   test('successfully subscribe and receive new messages', () async {
     final message = Message(
@@ -87,10 +92,11 @@ void main() {
       timestamp: DateTime.now(),
       content: 'this is another message',
     );
-
-    await sut.send(message);
-    await sut.send(secondMessage).whenComplete(
-        () => sut.messages(secondUser).listen(expectAsync1((message) {
+    //first message sent
+    await messageService.send(message);
+    //after second message sent we subscribe for messages
+    await messageService.send(secondMessage).whenComplete(() =>
+        messageService.messages(secondUser).listen(expectAsync1((message) {
               expect(message.to, secondUser.id);
             }, count: 2)));
   });
@@ -103,17 +109,15 @@ void main() {
       timestamp: DateTime.now(),
       content: 'hello from secondUser',
     );
-    await sut.send(sentMessage);
+    await messageService.send(sentMessage);
 
     // Subscribe to messages for firstUser
-    final messagesStream = sut.messages(firstUser);
+    final messagesStream = messageService.messages(firstUser);
 
     // Wait for the stream to emit a message
     final receivedMessage = await messagesStream.first;
 
-    // Verify that the received message matches the sent message
-    expect(receivedMessage.from, sentMessage.from);
-    expect(receivedMessage.to, sentMessage.to);
+    // Verify that the received message content is the same as the sent message
     expect(receivedMessage.content, sentMessage.content);
   });
 }

@@ -2,25 +2,33 @@ import 'dart:async';
 import 'package:rethink_db_ns/rethink_db_ns.dart';
 import '../../models/message.dart';
 import '../../models/user.dart';
+import '../encryption/encryption_service_contract.dart';
 import 'message_service_contract.dart';
 
 class MessageService implements IMessageService {
   MessageService(
     this._r,
     this._connection,
+    this._encryptionService,
   );
 
   final Connection _connection;
   final RethinkDb _r;
+  final IEncryptionService _encryptionService;
 
   final _controller = StreamController<Message>.broadcast();
   StreamSubscription<Feed>? _changefeed;
 
   @override
   Future<bool> send(Message message) async {
+    final messageData = message.toJson();
+
+    //encrypt message's content
+    messageData['content'] = _encryptionService.encrypt(message.content);
+
     final record = await _r
         .table('messages')
-        .insert(message.toJson())
+        .insert(messageData)
         .run(_connection) as Map<String, dynamic>;
     return record['inserted'] == 1;
   }
@@ -76,7 +84,11 @@ class MessageService implements IMessageService {
   }
 
   Message _messageFromFeed(Map<String, dynamic> feedData) {
-    return Message.fromJson(feedData['new_val'] as Map<String, dynamic>);
+    final messageData = feedData['new_val'] as Map<String, dynamic>;
+    //decrypt message's content
+    messageData['content'] =
+        _encryptionService.decrypt(messageData['content'] as String);
+    return Message.fromJson(messageData);
   }
 
   void _removeDeliveredMessage(Message message) {
