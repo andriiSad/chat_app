@@ -16,8 +16,7 @@ void main() {
 
   setUp(() async {
     connection = await r.connect(host: '127.0.0.1');
-    final encryptionService =
-        EncryptionService(Encrypter(AES(Key.fromLength(32))));
+    final encryptionService = EncryptionService(Encrypter(AES(Key.fromLength(32))));
     await createDb(r, connection);
     messageService = MessageService(r, connection, encryptionService);
   });
@@ -95,8 +94,9 @@ void main() {
     //first message sent
     await messageService.send(message);
     //after second message sent we subscribe for messages
-    await messageService.send(secondMessage).whenComplete(() =>
-        messageService.messages(secondUser).listen(expectAsync1((message) {
+    await messageService
+        .send(secondMessage)
+        .whenComplete(() => messageService.messages(secondUser).listen(expectAsync1((message) {
               expect(message.to, secondUser.id);
             }, count: 2)));
   });
