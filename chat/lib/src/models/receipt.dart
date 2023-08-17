@@ -38,7 +38,7 @@ class Receipt {
   final String messageId;
   final DateTime timestamp;
   final RecipientStatus status;
-  late String _id;
+  String? _id;
   String? get id => _id;
 
   Map<String, dynamic> toJson() => {
