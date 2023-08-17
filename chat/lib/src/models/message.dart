@@ -24,14 +24,12 @@ class Message {
   final String content;
   String? _id;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'from': from,
-      'to': to,
-      'timestamp': timestamp,
-      'content': content,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'from': from,
+        'to': to,
+        'timestamp': timestamp,
+        'content': content,
+      };
 
   @override
   String toString() {

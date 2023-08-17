@@ -38,15 +38,13 @@ class Receipt {
   final String messageId;
   final DateTime timestamp;
   final RecipientStatus status;
-  String? _id;
+  late String _id;
   String? get id => _id;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'recipient': recipient,
-      'messageId': messageId,
-      'status': status.value(),
-      'timestamp': timestamp,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'recipient': recipient,
+        'messageId': messageId,
+        'status': status.value(),
+        'timestamp': timestamp,
+      };
 }
