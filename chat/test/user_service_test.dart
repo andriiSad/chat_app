@@ -12,7 +12,7 @@ void main() {
   late IUserService userService;
 
   setUp(() async {
-    connection = await r.connect(host: '127.0.0.1');
+    connection = await r.connect();
     await createDb(r, connection);
     userService = UserService(r, connection);
   });

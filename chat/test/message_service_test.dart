@@ -15,7 +15,7 @@ void main() {
   late IMessageService messageService;
 
   setUp(() async {
-    connection = await r.connect(host: '127.0.0.1');
+    connection = await r.connect();
     final encryptionService = EncryptionService(Encrypter(AES(Key.fromLength(32))));
     await createDb(r, connection);
     messageService = MessageService(r, connection, encryptionService);
