@@ -11,6 +11,7 @@ dependencies:
   encrypt: ^5.0.1
   flutter:
     sdk: flutter
+  mockito: ^5.4.2
   rethink_db_ns: ^0.0.4
 
 dev_dependencies:

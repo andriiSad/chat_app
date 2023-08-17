@@ -1,6 +1,6 @@
 import 'package:rethink_db_ns/rethink_db_ns.dart';
 
-import '../models/user.dart';
+import '../../models/user.dart';
 import 'user_service_contract.dart';
 
 class UserService implements IUserService {

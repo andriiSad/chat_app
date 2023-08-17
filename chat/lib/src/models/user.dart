@@ -7,12 +7,12 @@ class User {
   });
   factory User.fromJson(Map<String, dynamic> json) {
     final User user = User(
-      username: json['username']! as String,
-      photoUrl: json['photoUrl']! as String,
-      active: json['active']! as bool,
+      username: json['username'] as String,
+      photoUrl: json['photoUrl'] as String,
+      active: json['active'] as bool,
       lastSeen: json['lastSeen'] as DateTime,
     );
-    user._id = json['id']! as String;
+    user._id = json['id'] as String;
     return user;
   }
   String username;
