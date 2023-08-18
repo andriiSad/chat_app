@@ -1,16 +1,16 @@
-enum RecipientStatus {
+enum ReceiptStatus {
   sent,
   delivered,
   read,
 }
 
-extension EnumParsing on RecipientStatus {
+extension EnumParsing on ReceiptStatus {
   String value() {
     return toString().split('.').last;
   }
 
-  static RecipientStatus fromString(String value) {
-    return RecipientStatus.values.firstWhere(
+  static ReceiptStatus fromString(String value) {
+    return ReceiptStatus.values.firstWhere(
       (status) => status.value() == value,
     );
   }
@@ -37,7 +37,7 @@ class Receipt {
   final String recipient;
   final String messageId;
   final DateTime timestamp;
-  final RecipientStatus status;
+  final ReceiptStatus status;
   String? _id;
   String? get id => _id;
 

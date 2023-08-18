@@ -35,7 +35,7 @@ void main() {
     final receipt = Receipt(
       recipient: '444',
       messageId: '1234',
-      status: RecipientStatus.delivered,
+      status: ReceiptStatus.delivered,
       timestamp: DateTime.now(),
     );
     final res = await receiptService.send(receipt);
@@ -49,14 +49,14 @@ void main() {
     final receipt = Receipt(
       recipient: user.id!,
       messageId: '1234',
-      status: RecipientStatus.delivered,
+      status: ReceiptStatus.delivered,
       timestamp: DateTime.now(),
     );
 
     final anotherReceipt = Receipt(
       recipient: user.id!,
       messageId: '1234',
-      status: RecipientStatus.delivered,
+      status: ReceiptStatus.delivered,
       timestamp: DateTime.now(),
     );
     await receiptService.send(receipt);
